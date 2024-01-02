@@ -4,6 +4,7 @@ from accounts import views
 
 urlpatterns = [
     path("", views.AccountCreateAPIView.as_view(), name="create-account"),
+    path("profile/<uuid:pk>", views.AccountRUDAPIView.as_view(), name="list-account"),
     path(
         "change-password/", views.ChangePasswordView.as_view(), name="change_password"
     ),

@@ -4,15 +4,16 @@ from django.core.mail import send_mail
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView , RetrieveUpdateDestroyAPIView
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated, AllowAny , IsAdminUser
 import uuid
-
+import os
 from django_filters.rest_framework import DjangoFilterBackend
 
 from accounts.models import Account
 from accounts.serializers import AccountSerializer
+from accounts.custom_permissions import IsOwner
 
 from ExpenseMonitor.settings import EMAIL_HOST_USER
 
@@ -21,6 +22,13 @@ class AccountCreateAPIView(CreateAPIView):
     queryset = Account.objects.all()
     serializer_class = AccountSerializer
     filter_backends = [DjangoFilterBackend]
+    
+    
+class AccountRUDAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = Account.objects.all()
+    serializer_class = AccountSerializer
+    permission_classes = [IsOwner]
+    
 
 
 
@@ -104,7 +112,8 @@ class ForgotPasswordView(APIView):
                 user.save()
                 send_mail(
                     subject="Password reset token",
-                    message=f"To reset your account password, the token is = {user.forget_password_token} ",
+                    message=f"""To reset your account password,click on the following link 
+                    {os.getenv("FRONTEND_URL")+"reset_password.html?id="+str(user.forget_password_token)} """,
                     from_email=EMAIL_HOST_USER,
                     recipient_list=[user.email],
                 )
