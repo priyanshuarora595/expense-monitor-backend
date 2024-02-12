@@ -12,6 +12,8 @@ from balance.custom_permissions import IsOwner
 from balance.custom_pagination import CustomPagination
 from balance.tasks import calculate_expenditure
 
+from api.views import ExportView
+
 from datetime import datetime as dt
 
 class BalanceLC(ListCreateAPIView):
@@ -20,7 +22,14 @@ class BalanceLC(ListCreateAPIView):
     permission_classes=[IsAuthenticated]
     filter_backends=[DjangoFilterBackend]
     filterset_fields = ['source','year','month']
-    pagination_class = CustomPagination
+    # pagination_class = CustomPagination
+    # pagination_class = CustomPagination
+    
+    def get_pagination_class(self):
+        # Check if a specific query parameter is present in the request
+        if self.request.query_params.get('disable_pagination'):
+            return None  # Disable pagination
+        return CustomPagination  # Enable pagination
     
     def get_queryset(self):
         if self.request.method=="GET":
@@ -30,6 +39,12 @@ class BalanceLC(ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         request.data["user"] = request.user.id
         return super().post(request=request,*args,**kwargs)
+    
+    def get(self, request, *args, **kwargs):
+        if request.query_params.get("export")=='true':
+            return ExportView().process_data(super().get(request,*args,**kwargs).data)
+        return  super().get(request,*args,**kwargs)
+            
 
 
 class BalanceRUD(RetrieveUpdateDestroyAPIView):

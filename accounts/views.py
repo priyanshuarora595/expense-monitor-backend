@@ -6,9 +6,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import CreateAPIView , RetrieveUpdateDestroyAPIView
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import IsAuthenticated, AllowAny , IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 import uuid
 import os
+from dotenv import load_dotenv
 from django_filters.rest_framework import DjangoFilterBackend
 
 from accounts.models import Account
@@ -17,6 +18,7 @@ from accounts.custom_permissions import IsOwner
 
 from ExpenseMonitor.settings import EMAIL_HOST_USER
 
+load_dotenv()
 
 class AccountCreateAPIView(CreateAPIView):
     queryset = Account.objects.all()
@@ -104,16 +106,18 @@ class ForgotPasswordView(APIView):
     serializer_class = AccountSerializer
 
     def post(self, request):
+        load_dotenv()
         try:
             email = request.data.get("email")
             user = self.queryset.get(email=email)
             if user:
                 user.forget_password_token = uuid.uuid4()
                 user.save()
+                email_link = os.getenv("FRONTEND_URL")+"reset_password.html?id="+str(user.forget_password_token)
                 send_mail(
                     subject="Password reset token",
                     message=f"""To reset your account password,click on the following link 
-                    {os.getenv("FRONTEND_URL")+"reset_password.html?id="+str(user.forget_password_token)} """,
+                    {email_link}""",
                     from_email=EMAIL_HOST_USER,
                     recipient_list=[user.email],
                 )

@@ -18,6 +18,10 @@ class BalanceSerializer(serializers.ModelSerializer):
             "first_day_amount",
             "last_day_amount",
         ]
+        
+        extra_kwargs = {
+        'user': {'write_only': True},
+    }
 
     def to_representation(self, obj):
         ret = super(BalanceSerializer, self).to_representation(obj)

@@ -16,6 +16,7 @@ class TransactionsSerializer(serializers.ModelSerializer):
             "commodity",
             "comments",
         ]
+        
         extra_kwargs = {'user': {'write_only': True}}
         
     def to_representation(self, obj):
@@ -41,6 +42,7 @@ class InternalTransactionsSerializer(serializers.ModelSerializer):
         ]
         
         extra_kwargs = {'user': {'write_only': True}}
+        
     def to_representation(self, obj):
         ret = super(InternalTransactionsSerializer, self).to_representation(obj)
         ret["source"] = SourcesSerializer(Sources.objects.get(id=ret["source"])).data
