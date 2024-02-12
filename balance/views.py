@@ -22,14 +22,14 @@ class BalanceLC(ListCreateAPIView):
     permission_classes=[IsAuthenticated]
     filter_backends=[DjangoFilterBackend]
     filterset_fields = ['source','year','month']
-    # pagination_class = CustomPagination
+    pagination_class = CustomPagination
     # pagination_class = CustomPagination
     
-    def get_pagination_class(self):
-        # Check if a specific query parameter is present in the request
-        if self.request.query_params.get('disable_pagination'):
-            return None  # Disable pagination
-        return CustomPagination  # Enable pagination
+    # def get_pagination_class(self):
+    #     # Check if a specific query parameter is present in the request
+    #     if self.request.query_params.get('disable_pagination'):
+    #         return None  # Disable pagination
+    #     return CustomPagination  # Enable pagination
     
     def get_queryset(self):
         if self.request.method=="GET":
@@ -41,9 +41,12 @@ class BalanceLC(ListCreateAPIView):
         return super().post(request=request,*args,**kwargs)
     
     def get(self, request, *args, **kwargs):
-        if request.query_params.get("export")=='true':
-            return ExportView().process_data(super().get(request,*args,**kwargs).data)
-        return  super().get(request,*args,**kwargs)
+        if request.query_params.get("export") == "true":
+            if self.request.query_params.get("disable_pagination",None):
+                self.pagination_class = None
+            data = super().get(request, *args, **kwargs).data
+            return ExportView().process_data(data)
+        return super().get(request, *args, **kwargs)
             
 
 
