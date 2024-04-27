@@ -9,6 +9,7 @@ class Commodity(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE)
     name = models.CharField(max_length=200)
+    is_deleted = models.BooleanField(default=False)
 
     class Meta:
         # Enforce a unique constraint on the combination of column1 and column2
@@ -16,6 +17,10 @@ class Commodity(models.Model):
 
     def __str__(self) -> str:
         return str(self.name)
+    
+    def delete(self, using=None, keep_parents=False):
+        self.is_deleted = True
+        self.save(using=using)
 
 
 class Sources(models.Model):
@@ -23,11 +28,15 @@ class Sources(models.Model):
     user = models.ForeignKey(AUTH_USER_MODEL, on_delete=models.CASCADE)
     name = models.CharField(max_length=200)
     default = models.BooleanField(default=False)
+    is_deleted = models.BooleanField(default=False)
 
     class Meta:
         # Enforce a unique constraint on the combination of column1 and column2
         unique_together = ("user", "name")
 
+    def delete(self, using=None, keep_parents=False):
+        self.is_deleted = True
+        self.save(using=using)
 
 class Transactions(models.Model):
     class Transaction_type(models.TextChoices):

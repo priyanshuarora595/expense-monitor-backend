@@ -82,14 +82,14 @@ class TransactionsRUD(RetrieveUpdateDestroyAPIView):
 
 
 class CommodityLC(ListCreateAPIView):
-    queryset = Commodity.objects.all().order_by("name")
+    queryset = Commodity.objects.filter(is_deleted=False).order_by("name")
     serializer_class = CommoditySerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         if self.request.method == "GET":
             # Return a specific queryset for GET requests
-            return super().get_queryset().filter(user=self.request.user.id)
+            return super().get_queryset().filter(user=self.request.user.id,is_deleted=False)
             # return Commodity.objects.filter(user=self.request.user.id)
         else:
             # Return a different queryset for POST requests
@@ -115,13 +115,13 @@ class CommodityRUD(RetrieveUpdateDestroyAPIView):
 
 
 class SourcesLC(ListCreateAPIView):
-    queryset = Sources.objects.all().order_by("id")
+    queryset = Sources.objects.filter(is_deleted=False).order_by("name")
     serializer_class = SourcesSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         if self.request.method == "GET":
-            return Sources.objects.filter(user=self.request.user.id)
+            return Sources.objects.filter(user=self.request.user.id,is_deleted=False)
         else:
             # Return a different queryset for POST requests
             return super().get_queryset()
