@@ -29,6 +29,7 @@ class Sources(models.Model):
     name = models.CharField(max_length=200)
     default = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         # Enforce a unique constraint on the combination of column1 and column2
