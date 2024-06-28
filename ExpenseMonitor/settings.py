@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     "transactions",
     "balance",
     'corsheaders',
-    'django_apscheduler',
+    # 'django_apscheduler',
 ]
 
 MIDDLEWARE = [
