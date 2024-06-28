@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-zofoj^x#%n9@dc5v(9_g9s59uel1bn78ub0hk--4a695kgu+)y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1"]
+ALLOWED_HOSTS = ["127.0.0.1","priyanshuarora.pythonanywhere.com"]
 
 
 # Application definition
@@ -158,6 +158,8 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 
 # cors configuration
 
+
 CORS_ALLOWED_ORIGINS = [
-    "http://127.0.0.1:5500",  # your frontend URL
+    "http://127.0.0.1:5500",
+    "http://priyanshu.me"
 ]
