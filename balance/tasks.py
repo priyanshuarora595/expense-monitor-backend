@@ -1,21 +1,13 @@
 from transactions.models import Transactions, Commodity, Sources, InternalTransactions
 from balance.models import Balance
-from accounts.models import Account
 from datetime import datetime
 from django.db.models import Sum
-
-import os
-
-# from django.core.mail import send_mail,EmailMessage
-from django.core.mail import EmailMultiAlternatives
-from django.template.loader import render_to_string
-from ExpenseMonitor.settings import EMAIL_HOST_USER
 
 
 def calculate_expenditure(
     user_id=1, month=datetime.now().month, year=datetime.now().year
 ):
-    sources = Sources.objects.filter(user=user_id,is_active=True).values_list("id", "name")
+    sources = Sources.objects.filter(user=user_id).values_list("id", "name")
     internalTransactions = InternalTransactions.objects.filter(
         user=user_id, date__month=month, date__year=year
     )
@@ -30,6 +22,7 @@ def calculate_expenditure(
     internal_credits = 0
     internal_debits = 0
     data = {}
+    
     for source in sources:
         source_initial = balance.filter(source__id=source[0]).aggregate(
             Sum("first_day_amount")
@@ -54,22 +47,25 @@ def calculate_expenditure(
         source_debits = source_debits if source_debits is not None else 0
         internal_credits = internal_credits if internal_credits is not None else 0
         internal_debits = internal_debits if internal_debits is not None else 0
+        
+        if any([source_initial,source_credits,source_debits,internal_credits,internal_debits]):
+            data[source[1]] = {
+                "initial": source_initial,
+                "credits": source_credits,
+                "internal_credits" : internal_credits,
+                "debits": source_debits,
+                "internal_transfer": internal_debits,
+            }
+            data[source[1]]["remaining"] = (
+                data[source[1]]["initial"]
+                + data[source[1]]["credits"]
+                + data[source[1]]["internal_credits"]
+                - data[source[1]]["debits"]
+                - data[source[1]]['internal_transfer']
+            )
 
-        data[source[1]] = {
-            "initial": source_initial,
-            "credits": source_credits + internal_credits,
-            "debits": source_debits,
-            "internal_transfer": internal_debits,
-        }
-        data[source[1]]["remaining"] = (
-            data[source[1]]["initial"]
-            + data[source[1]]["credits"]
-            - data[source[1]]["debits"]
-            - data[source[1]]['internal_transfer']
-        )
-
-        initial += data[source[1]]["initial"]
-        remaining += data[source[1]]["remaining"]
+            initial += data[source[1]]["initial"]
+            remaining += data[source[1]]["remaining"]
 
     commodities = Commodity.objects.filter(user=user_id)
     detail_view = {}
@@ -99,65 +95,3 @@ def calculate_expenditure(
     )
 
     return data, detail_view, total_credits, total_debits, initial, remaining
-
-
-def send_mail_last_day():
-    accounts = Account.objects.all().values_list("id", "email")
-    month = datetime.now().strftime("%B")
-    year = datetime.now().year
-    for account in accounts:
-        user_id = account[0]
-        user_email_id = account[1]
-        (
-            data,
-            detail_view,
-            total_credits,
-            total_debits,
-            initial,
-            remaining,
-        ) = calculate_expenditure(user_id)
-        context_data = {
-            "month": month,
-            "year": year,
-            "data": data,
-            "detail_view": detail_view,
-            "total_credits": total_credits,
-            "total_debits": total_debits,
-            "initial": initial,
-            "remaining": remaining,
-        }
-        html_message = render_to_string("balance.html", context_data)
-
-        subject = f"Monthly Expenditure report for {month} {year}"
-        message = f"""
-        Hello
-        Please find Monthly expenditure report for {month} {year}
-        
-        """
-
-        email = EmailMultiAlternatives(
-            subject, message, EMAIL_HOST_USER, [user_email_id]  # Sender's email address
-        )
-        email.attach_alternative(html_message, "text/html")
-        email.send()
-
-
-def send_mail_first_day():
-    emails = Account.objects.all().values_list("email", flat=True)
-    month = datetime.now().month
-    year = datetime.now().year
-    for email in emails:
-        subject = f"Reminder for entering details for {month} {year} finance starting."
-        message = f"""
-        Hello
-        This is to remind you to kindly fill the finance details for {month} {year} by visiting the following link
-        
-        link = {os.environ.get("frontend_url")+'/balance.html'}
-        """
-        print(message)
-        # send_mail(
-        #     subject,
-        #     message,
-        #     from_email=EMAIL_HOST_USER,
-        #     recipient_list=[email],
-        # )
