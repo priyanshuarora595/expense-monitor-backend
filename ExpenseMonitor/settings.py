@@ -159,5 +159,6 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:5500",
-    "http://priyanshu.me"
+    "http://priyanshu.me",
+    "https://priyanshuarora595.github.io"
 ]
