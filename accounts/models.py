@@ -21,6 +21,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     gender = models.CharField(
         verbose_name="gender", choices=Gender.choices, max_length=10
     )
+    send_monthly_report = models.BooleanField(default=False)
     forget_password_token = models.UUIDField(
         verbose_name="forget_password_token", default=None, unique=True, null=True
     )
