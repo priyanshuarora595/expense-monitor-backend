@@ -13,6 +13,7 @@ class AccountSerializer(serializers.ModelSerializer):
             "fname",
             "lname",
             "gender",
+            "send_monthly_report",
             "is_admin",
             "is_active",
             "is_staff",

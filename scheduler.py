@@ -28,11 +28,12 @@ def go_one_day_back(date=None):
 
 
 def send_mail_last_day(month, year):
-    accounts = Account.objects.all().values_list("id", "email")
+    accounts = Account.objects.all().values_list("id", "email", "send_monthly_report")
     for account in accounts:
         user_id = account[0]
         user_email_id = account[1]
-        if user_email_id == os.getenv("TEST_EMAIL"):
+        send_monthly_report = account[2]
+        if send_monthly_report:
             data, detail_view, total_credits, total_debits, initial, remaining = (
                 calculate_expenditure(user_id, month, year)
             )

@@ -5,8 +5,13 @@ django-filter==23.4
 djangorestframework==3.14.0
 mysql-connector-python==8.2.0
 mysqlclient==2.2.0
+numpy==2.2.0
+pandas==2.2.3
 protobuf==4.21.12
+python-dateutil==2.9.0.post0
 python-dotenv==1.0.0
 pytz==2023.3.post1
+six==1.17.0
 sqlparse==0.4.4
 typing_extensions==4.8.0
+tzdata==2024.2
