@@ -13,6 +13,7 @@ from balance.custom_pagination import CustomPagination
 from balance.tasks import calculate_expenditure, calculate_expenditure_range
 
 from api.views import ExportView
+from scheduler import send_mail_last_day
 
 from datetime import datetime as dt
 
@@ -62,28 +63,43 @@ class BalanceDetailData(APIView):
     permission_classes = [IsAuthenticated, IsOwner]
 
     def get(self, request, pk):
-        balance = Balance.objects.get(id=pk)
-        month = balance.month
-        year = balance.year
-        data, detail_view, total_credits, total_debits, initial, remaining = (
-            calculate_expenditure(user_id=request.user.id, month=month, year=year)
-        )
-        month = dt(year=1, month=balance.month, day=1).strftime("%B")
-        context_data = {
-            "month": month,
-            "year": balance.year,
-            "data": data,
-            "detail_view": detail_view,
-            "total_credits": total_credits,
-            "total_debits": total_debits,
-            "initial": initial,
-            "remaining": remaining,
-        }
+        try:
+            balance = Balance.objects.get(id=pk)
+            month = balance.month
+            year = balance.year
+            send_mail = self.request.query_params.get("send_mail")
+            if send_mail and send_mail == "true":
+                send_mail_last_day(month, year, user_id=request.user.id)
+                return Response(
+                    data={"message": "Email sent successfully"},
+                    status=status.HTTP_200_OK,
+                )
+            else:
+                data, detail_view, total_credits, total_debits, initial, remaining = (
+                    calculate_expenditure(user_id=request.user.id, month=month, year=year)
+                )
+                month = dt(year=1, month=balance.month, day=1).strftime("%B")
+                context_data = {
+                    "month": month,
+                    "year": balance.year,
+                    "data": data,
+                    "detail_view": detail_view,
+                    "total_credits": total_credits,
+                    "total_debits": total_debits,
+                    "initial": initial,
+                    "remaining": remaining,
+                }
 
-        return Response(
-            context_data,
-            status=status.HTTP_200_OK,
-        )
+                return Response(
+                    context_data,
+                    status=status.HTTP_200_OK,
+                )
+        except Exception as e:
+            print(e)
+            return Response(
+                data={"message": "Error "+str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 
 class BalanceDetailRange(APIView):

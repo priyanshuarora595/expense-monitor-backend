@@ -37,9 +37,6 @@ def delete_table_rows():
 
             # print(f'Rows deleted from {table_name} successfully.')
 
-        # send mail of budget
-        my_daily_task()
-
     except Error as e:
         print(f"Error: {e}")
 
@@ -52,3 +49,5 @@ def delete_table_rows():
 
 if __name__ == "__main__":
     delete_table_rows()
+    # send mail of budget
+    my_daily_task()
