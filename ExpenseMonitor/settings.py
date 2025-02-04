@@ -27,9 +27,26 @@ SECRET_KEY = 'django-insecure-zofoj^x#%n9@dc5v(9_g9s59uel1bn78ub0hk--4a695kgu+)y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1","priyanshuarora.pythonanywhere.com","priyanshuexpense.pythonanywhere.com"]
+ALLOWED_HOSTS = ["priyanshuexpense.pythonanywhere.com"]
 
-
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,  # Ensure default loggers aren't removed
+    'handlers': {
+        'file': {
+            'level': 'ERROR',  # Log only errors to reduce log spam
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(os.path.expanduser("~"), "django_error.log"),  # Store logs in home directory
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+}
 # Application definition
 
 INSTALLED_APPS = [
