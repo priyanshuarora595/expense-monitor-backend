@@ -7,7 +7,7 @@ from django.db.models import Sum, Q
 def calculate_expenditure(
     user_id=1, month=datetime.now().month, year=datetime.now().year
 ):
-    sources = Sources.objects.filter(user=user_id,is_active=True).values_list("id", "name")
+    sources = Sources.objects.filter(user=user_id,is_deleted=False,is_active=True).values_list("id", "name")
     internalTransactions = InternalTransactions.objects.filter(
         user=user_id, date__month=month, date__year=year
     )
