@@ -78,8 +78,9 @@ def calculate_expenditure(
         
         #update last day balance of the source
         balance_obj = balance.filter(source__id=source[0]).first()
-        balance_obj.last_day_amount = data[source[1]]["remaining"]
-        balance_obj.save()
+        if balance_obj:
+            balance_obj.last_day_amount = data[source[1]]["remaining"]
+            balance_obj.save()
         
         # create balance object for next month
         curr_month=datetime.now().month
