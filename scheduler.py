@@ -60,7 +60,7 @@ def go_one_day_back(date=None):
     return previous_day
 
 
-def send_mail_last_day(month, year, user_id):
+def send_mail_last_day(month, year, user_id=None):
     if user_id:
         account = Account.objects.get(id=user_id)
         user_email_id = account.email
