@@ -1,5 +1,6 @@
 from transactions.models import Transactions, Commodity, Sources, InternalTransactions
 from balance.models import Balance
+from accounts.models import Account
 from datetime import datetime
 from django.db.models import Sum, Q
 
@@ -83,7 +84,8 @@ def calculate_expenditure(
         # create balance object for next month
         curr_month=datetime.now().month
         curr_year=datetime.now().year
-        Balance.objects.create(user=user_id,month=curr_month,year=curr_year,source=source,first_day_amount = data[source[1]]["remaining"])
+        user = Account.objects.get(id=user_id)
+        Balance.objects.create(user=user,month=curr_month,year=curr_year,source=source,first_day_amount = data[source[1]]["remaining"])
 
     commodities = Commodity.objects.filter(user=user_id)
     detail_view = {}
