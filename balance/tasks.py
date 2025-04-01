@@ -85,7 +85,8 @@ def calculate_expenditure(
         curr_month=datetime.now().month
         curr_year=datetime.now().year
         user = Account.objects.get(id=user_id)
-        Balance.objects.create(user=user,month=curr_month,year=curr_year,source=source,first_day_amount = data[source[1]]["remaining"])
+        source_obj = Sources.objects.get(id=source[0])
+        Balance.objects.create(user=user,month=curr_month,year=curr_year,source=source_obj,first_day_amount = data[source[1]]["remaining"])
 
     commodities = Commodity.objects.filter(user=user_id)
     detail_view = {}
