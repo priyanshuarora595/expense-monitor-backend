@@ -6,7 +6,7 @@ from django.db.models import Sum, Q
 
 
 def calculate_expenditure(
-    user_id=1, month=datetime.now().month, year=datetime.now().year
+    user_id=1, month=datetime.now().month, year=datetime.now().year,monthly_auto=False
 ):
     sources = Sources.objects.filter(user=user_id,is_deleted=False,is_active=True).values_list("id", "name")
     internalTransactions = InternalTransactions.objects.filter(
@@ -76,18 +76,19 @@ def calculate_expenditure(
         initial += data[source[1]]["initial"]
         remaining += data[source[1]]["remaining"]
         
-        #update last day balance of the source
-        balance_obj = balance.filter(source__id=source[0]).first()
-        if balance_obj:
-            balance_obj.last_day_amount = data[source[1]]["remaining"]
-            balance_obj.save()
-        
-        # create balance object for next month
-        curr_month=datetime.now().month
-        curr_year=datetime.now().year
-        user = Account.objects.get(id=user_id)
-        source_obj = Sources.objects.get(id=source[0])
-        Balance.objects.create(user=user,month=curr_month,year=curr_year,source=source_obj,first_day_amount = data[source[1]]["remaining"])
+        if monthly_auto:
+            #update last day balance of the source
+            balance_obj = balance.filter(source__id=source[0]).first()
+            if balance_obj:
+                balance_obj.last_day_amount = data[source[1]]["remaining"]
+                balance_obj.save()
+            
+            # create balance object for next month
+            curr_month=datetime.now().month
+            curr_year=datetime.now().year
+            user = Account.objects.get(id=user_id)
+            source_obj = Sources.objects.get(id=source[0])
+            Balance.objects.create(user=user,month=curr_month,year=curr_year,source=source_obj,first_day_amount = data[source[1]]["remaining"])
 
     commodities = Commodity.objects.filter(user=user_id)
     detail_view = {}

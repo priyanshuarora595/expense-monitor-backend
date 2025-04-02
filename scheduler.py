@@ -17,7 +17,7 @@ from datetime import datetime as dt, timedelta
 
 def prep_data_and_send_mail(user_id, month, year, user_email_id):
     data, detail_view, total_credits, total_debits, initial, remaining = (
-        calculate_expenditure(user_id, month, year)
+        calculate_expenditure(user_id, month, year,monthly_auto=True)
     )
     month = dt(year=1, month=month, day=1).strftime("%B")
     context_data = {
