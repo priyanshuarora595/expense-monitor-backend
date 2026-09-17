@@ -37,3 +37,28 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
+
+
+class WebAuthnCredential(models.Model):
+    user = models.ForeignKey(
+        Account, on_delete=models.CASCADE, related_name="webauthn_credentials"
+    )
+    credential_id = models.CharField(max_length=255, unique=True, db_index=True)
+    public_key = models.TextField()
+    sign_count = models.PositiveIntegerField(default=0)
+    transports = models.JSONField(default=list, blank=True)
+    device_label = models.CharField(max_length=100, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_used_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.device_label or self.credential_id[:12]}"
+
+
+class WebAuthnChallenge(models.Model):
+    # A used-nonce ledger for single-use WebAuthn challenge enforcement - a row
+    # is inserted only when a challenge is actually consumed by a successful
+    # verify call (see accounts/views.py::_consume_challenge), not when it's
+    # issued. The unique constraint on `jti` rejects a replayed request.
+    jti = models.CharField(max_length=64, unique=True)
+    consumed_at = models.DateTimeField(auto_now_add=True)
