@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-zofoj^x#%n9@dc5v(9_g9s59uel1bn78ub0hk--4a695kgu+)y'
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -179,3 +179,15 @@ CORS_ALLOWED_ORIGINS = [
     "http://priyanshu.me",
     "https://priyanshuarora595.github.io"
 ]
+
+# WebAuthn (fingerprint / Face ID passwordless login) config.
+# The RP ID is the domain a credential is tied to - it must exactly match (or
+# be a registrable parent of) the origin navigator.credentials.create()/get()
+# is called from, so it can only ever be ONE of the CORS origins above, not
+# all of them. Override both via .env for local/tunnel testing.
+WEBAUTHN_RP_ID = os.environ.get("WEBAUTHN_RP_ID", "priyanshuarora595.github.io")
+WEBAUTHN_RP_NAME = "Expense Manager"
+WEBAUTHN_ORIGIN = os.environ.get("WEBAUTHN_ORIGIN", "https://priyanshuarora595.github.io")
+# Independent of SECRET_KEY on purpose, so it can be set to its own strong
+# value in .env regardless of SECRET_KEY's current state.
+WEBAUTHN_SIGNING_KEY = os.environ.get("WEBAUTHN_SIGNING_KEY", SECRET_KEY)
